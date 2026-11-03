@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { expect, it } from 'vitest'
 import LoginForm from './LoginForm'
 
 it('valida os campos e informa que o login ainda não está disponível', async () => {
   const user = userEvent.setup()
-  render(<LoginForm />)
+  render(<MemoryRouter><LoginForm /></MemoryRouter>)
   await user.click(screen.getByRole('button', { name: 'Login' }))
   expect(screen.getByText('Informe seu email ou usuário.')).toBeInTheDocument()
   expect(screen.getByText('Informe sua senha.')).toBeInTheDocument()
@@ -19,14 +20,18 @@ it('valida os campos e informa que o login ainda não está disponível', async 
 
 it('informa quando os outros fluxos estão indisponíveis', async () => {
   const user = userEvent.setup()
-  render(<LoginForm />)
+  render(<MemoryRouter><LoginForm /></MemoryRouter>)
   for (const [name, message] of [
     ['Esqueci a senha', 'A recuperação de senha ainda não está disponível.'],
     ['Entrar com GitHub', 'O login com GitHub ainda não está disponível.'],
     ['Entrar com Gmail', 'O login com Gmail ainda não está disponível.'],
-    ['Crie seu cadastro!', 'O cadastro ainda não está disponível.'],
   ]) {
     await user.click(screen.getByRole('button', { name }))
     expect(screen.getByRole('status')).toHaveTextContent(message)
   }
+})
+
+it('leva ao cadastro pelo link', () => {
+  render(<MemoryRouter><LoginForm /></MemoryRouter>)
+  expect(screen.getByRole('link', { name: 'Crie seu cadastro!' })).toHaveAttribute('href', '/cadastro')
 })

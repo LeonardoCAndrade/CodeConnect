@@ -1,12 +1,14 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router'
+import { expect, it } from 'vitest'
 import AuthSwitchLink from './AuthSwitchLink'
 
-it('apresenta a pergunta e executa a ação de troca de fluxo', async () => {
-  const onAction = vi.fn()
-  render(<AuthSwitchLink question="Já tem conta?" actionLabel="Faça seu login!" icon="login" layout="inline" onAction={onAction} />)
+it('apresenta a pergunta e o link para o outro fluxo', () => {
+  render(
+    <MemoryRouter>
+      <AuthSwitchLink question="Já tem conta?" actionLabel="Faça seu login!" icon="login" layout="inline" to="/login" />
+    </MemoryRouter>,
+  )
   expect(screen.getByText('Já tem conta?')).toBeInTheDocument()
-  await userEvent.click(screen.getByRole('button', { name: 'Faça seu login!' }))
-  expect(onAction).toHaveBeenCalledOnce()
+  expect(screen.getByRole('link', { name: 'Faça seu login!' })).toHaveAttribute('href', '/login')
 })
