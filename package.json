@@ -13,6 +13,7 @@
     "lint": "pnpm -r run lint",
     "lint:web": "pnpm --filter ./apps/web run lint",
     "lint:api": "pnpm --filter ./apps/api run lint",
+    "test:web": "pnpm --filter ./apps/web run test",
     "test:api": "pnpm --filter ./apps/api run test",
     "test:api:e2e": "pnpm --filter ./apps/api run test:e2e",
     "preview:web": "pnpm --filter ./apps/web run preview",

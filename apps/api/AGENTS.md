@@ -29,5 +29,7 @@ Regras específicas de `apps/api`. Elas complementam as regras gerais do monorep
 
 ## Validação
 
+Os comandos abaixo usam os scripts da raiz do monorepo. Dentro de `apps/api`, use os equivalentes do pacote: `pnpm lint`, `pnpm build`, `pnpm test` e `pnpm test:e2e`.
+
 - Para alterações de código, execute `pnpm lint:api` e `pnpm build:api`.
 - Para mudanças de comportamento, execute `pnpm test:api` e, quando afetarem endpoints ou integração HTTP, `pnpm test:api:e2e`. Acrescente testes relevantes para novos comportamentos e correções.
