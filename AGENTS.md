@@ -1,16 +1,18 @@
 # Instruções para agentes
 
-Este arquivo contém as regras gerais do monorepo e do frontend. As regras específicas da API ficam em `apps/api/AGENTS.md`; siga os dois arquivos ao trabalhar em `apps/api`.
+Este arquivo contém as regras gerais do monorepo e do frontend. As regras específicas da API ficam em `apps/api/AGENTS.md`: leia-o antes de planejar, alterar ou revisar qualquer coisa em `apps/api` e siga os dois arquivos.
+
+As regras dos agentes ficam somente nos arquivos `AGENTS.md`. Os arquivos `CLAUDE.md` apenas importam o `AGENTS.md` do mesmo diretório; ao adicionar ou alterar regras, edite o `AGENTS.md` correspondente, nunca o `CLAUDE.md`.
 
 ## Estrutura do projeto
 
 CodeConnect é um monorepo pnpm com dois aplicativos TypeScript:
 
-- `apps/web`: React com Vite. Entrada em `src/main.tsx`, componente principal em `src/App.tsx`, estilos em `src/App.css` e `src/index.css`.
-- `apps/api`: NestJS. Entrada em `src/main.ts`, composição em `src/app.module.ts`, controllers e services em `src/`, testes unitários `*.spec.ts` e testes de integração em `test/*.e2e-spec.ts`.
+- `apps/web`: React com Vite, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e Vitest. Entrada em `src/main.tsx`, componente raiz em `src/App.tsx`, estilos globais em `src/index.css`, componentes em `src/components/` e configuração dos testes em `src/test/setup.ts`.
+- `apps/api`: NestJS. A estrutura e as convenções estão em `apps/api/AGENTS.md`.
 - `pnpm-workspace.yaml` define os pacotes; `pnpm-lock.yaml` é o lockfile compartilhado.
 
-Os aplicativos ainda contêm as telas e endpoints iniciais dos templates. Não presuma integrações, banco de dados ou autenticação já implementados.
+O frontend já tem a tela de login (`LoginPage`) composta por componentes Atomic Design. A API ainda contém o endpoint inicial do template. Não presuma integrações, banco de dados ou autenticação no backend já implementados; parta do código existente em vez de recriá-lo.
 
 ## Ambiente e comandos
 
@@ -25,10 +27,11 @@ Use Node.js 22.12 ou superior e a versão de pnpm definida em `package.json` (`p
 | `pnpm build:web` / `pnpm build:api` | Compilar um aplicativo |
 | `pnpm lint` | Verificar os dois aplicativos com Oxlint |
 | `pnpm lint:web` / `pnpm lint:api` | Verificar um aplicativo |
+| `pnpm test:web` | Executar testes de componentes do frontend com Vitest |
 | `pnpm test:api` | Executar testes unitários da API com Vitest |
 | `pnpm test:api:e2e` | Executar testes de integração da API com Vitest e Supertest |
 
-O frontend usa a porta 5173 por padrão; a API usa `PORT` ou 3000. Outros scripts podem ser executados com `pnpm --filter web <script>` ou `pnpm --filter api <script>`.
+Esses scripts existem apenas no `package.json` da raiz. Dentro de `apps/web` ou `apps/api`, use os scripts do próprio pacote (`lint`, `build`, `test` e, na API, `test:e2e`). O frontend usa a porta 5173 por padrão; a API usa `PORT` ou 3000. Outros scripts podem ser executados com `pnpm --filter web <script>` ou `pnpm --filter api <script>`.
 
 ## Convenções de implementação
 
@@ -48,8 +51,8 @@ O frontend usa a porta 5173 por padrão; a API usa `PORT` ou 3000. Outros script
 - Use Tailwind como padrão de estilização e mantenha cores, espaçamentos e demais tokens consistentes. Reserve CSS personalizado para necessidades que as utilities não expressem adequadamente e para estilos globais.
 - Todo componente, de qualquer camada, deve ter um teste automatizado cobrindo seu uso essencial. Mantenha o teste próximo do componente, com nome `NomeDoComponente.test.tsx`.
 - Teste o comportamento observável pelo usuário: renderização do conteúdo essencial e, quando houver interação, a ação principal e seu resultado. Prefira consultas por papel, nome acessível e texto; snapshots isolados não satisfazem essa exigência.
-- Use Vitest com React Testing Library e user-event para os testes de componentes. Ao introduzir essa estrutura, configure o ambiente DOM e os scripts necessários no pacote web.
-- Tailwind e a estrutura de testes do frontend ainda precisam ser configurados. Ao implementar componentes, prepare a infraestrutura necessária e entregue o componente com seu teste passando.
+- Use Vitest com React Testing Library e user-event para os testes de componentes. Tailwind, o ambiente jsdom e o setup dos testes (`src/test/setup.ts`) já estão configurados; reutilize essa infraestrutura em vez de reconfigurá-la.
+- Entregue cada componente novo ou alterado com seu teste passando.
 
 ## Git: Conventional Commits
 
@@ -63,7 +66,7 @@ O frontend usa a porta 5173 por padrão; a API usa `PORT` ou 3000. Outros script
 ## Validação
 
 - Para alterações de código, execute lint e build do aplicativo afetado.
-- Para mudanças no frontend, execute também os testes dos componentes afetados. Enquanto o script de testes não existir, configure-o junto da implementação dos componentes; a verificação no navegador complementa os testes automatizados.
+- Para mudanças no frontend, execute também `pnpm test:web`. A verificação no navegador complementa os testes automatizados.
 - Para mudanças na API, siga também a seção de validação de `apps/api/AGENTS.md`.
 - Para mudanças apenas de documentação, confira os comandos e caminhos citados; não é necessário compilar os aplicativos.
 - Informe quais verificações foram executadas e eventuais falhas ou limitações.
