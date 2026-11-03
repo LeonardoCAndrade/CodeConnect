@@ -1,20 +1,24 @@
-﻿@import 'tailwindcss';
+﻿@import '@fontsource/prompt/400.css';
+@import '@fontsource/prompt/600.css';
+@import 'tailwindcss';
 
 :root {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  color: #e6e6e6;
-  background: #00090d;
+  font-family: 'Prompt', 'Segoe UI', Arial, sans-serif;
+  color: #e1e1e1;
+  background: #00090e;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-}
+@layer base {
+  body {
+    margin: 0;
+    min-width: 320px;
+  }
 
-button, input {
-  font: inherit;
+  button, input {
+    font: inherit;
+  }
 }
