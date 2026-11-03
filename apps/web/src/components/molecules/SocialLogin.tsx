@@ -1,26 +1,35 @@
+export type SocialProvider = 'GitHub' | 'Gmail'
+
 type SocialLoginProps = {
-  onSelect: (provider: 'GitHub' | 'Gmail') => void
+  onSelect: (provider: SocialProvider) => void
 }
+
+const providers = [
+  { name: 'GitHub', label: 'Github', icon: '/github.svg', width: 32.5424, height: 32 },
+  { name: 'Gmail', label: 'Gmail', icon: '/gmail.svg', width: 28, height: 28 },
+] as const
 
 export default function SocialLogin({ onSelect }: SocialLoginProps) {
   return (
-    <div className="mt-8">
-      <div className="flex items-center gap-4 text-center text-sm text-[#e1e1e1]">
-        <span className="h-px flex-1 bg-[#888]" aria-hidden="true" />
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-4 text-center text-[15px] leading-normal text-[#e1e1e1]">
+        <span className="h-px flex-1 bg-[#e1e1e1]" aria-hidden="true" />
         <span>ou entre com outras contas</span>
-        <span className="h-px flex-1 bg-[#888]" aria-hidden="true" />
+        <span className="h-px flex-1 bg-[#e1e1e1]" aria-hidden="true" />
       </div>
-      <div className="mt-3 flex justify-center gap-6">
-        {(['GitHub', 'Gmail'] as const).map((provider) => (
+      <div className="flex justify-center gap-6">
+        {providers.map((provider) => (
           <button
-            key={provider}
+            key={provider.name}
             type="button"
-            onClick={() => onSelect(provider)}
-            className="flex min-w-10 flex-col items-center gap-1 rounded text-xs text-[#e1e1e1] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#81fe88]"
-            aria-label={`Entrar com ${provider}`}
+            onClick={() => onSelect(provider.name)}
+            className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded text-[12.5px] leading-normal text-[#e1e1e1] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#81fe88]"
+            aria-label={`Entrar com ${provider.name}`}
           >
-            <img src={provider === 'GitHub' ? '/github.png' : '/gmail.png'} alt="" className="h-8 w-8 object-contain" />
-            {provider}
+            <span className="flex h-8 items-center">
+              <img src={provider.icon} alt="" width={provider.width} height={provider.height} />
+            </span>
+            {provider.label}
           </button>
         ))}
       </div>
