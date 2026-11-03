@@ -30,7 +30,7 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[346px] flex-col gap-6">
       <div className="flex flex-col gap-8">
         <form className="flex flex-col gap-8" onSubmit={handleSubmit} noValidate>
           <AuthHeader title="Cadastro" subtitle="Olá! Preencha seus dados." />
@@ -48,7 +48,7 @@ export default function SignupForm() {
         <SocialLogin onSelect={(provider) => setMessage(`O cadastro com ${provider} ainda não está disponível.`)} />
       </div>
       <AuthSwitchLink question="Já tem conta?" actionLabel="Faça seu login!" icon="login" layout="inline" to="/login" />
-      <p role="status" aria-live="polite" className="text-center text-sm text-[#e1e1e1] empty:hidden">{message}</p>
+      <p role="status" aria-live="polite" className="text-center text-sm text-[#e1e1e1] empty:-mt-6">{message}</p>
     </div>
   )
 }

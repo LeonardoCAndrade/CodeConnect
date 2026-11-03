@@ -11,3 +11,13 @@ it('associa o campo ao rótulo e apresenta erro acessível', async () => {
   expect(input).toHaveAttribute('aria-invalid', 'true')
   expect(input).toHaveAccessibleDescription('Informe seu usuário.')
 })
+
+it('renderiza o conteúdo complementar abaixo do campo', () => {
+  render(
+    <FormField id="password" label="Senha" type="password">
+      <button type="button">Esqueci a senha</button>
+    </FormField>,
+  )
+  expect(screen.getByLabelText('Senha')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Esqueci a senha' })).toBeInTheDocument()
+})

@@ -48,7 +48,7 @@ export default function LoginForm() {
         <SocialLogin onSelect={(provider) => setMessage(`O login com ${provider} ainda não está disponível.`)} />
       </div>
       <AuthSwitchLink question="Ainda não tem conta?" actionLabel="Crie seu cadastro!" icon="assignment" to="/cadastro" />
-      <p role="status" aria-live="polite" className="text-center text-sm text-[#e1e1e1] empty:hidden">{message}</p>
+      <p role="status" aria-live="polite" className="text-center text-sm text-[#e1e1e1] empty:-mt-6">{message}</p>
     </div>
   )
 }
