@@ -1,0 +1,21 @@
+{
+  "name": "codeconnect",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@12.15.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./apps/* run dev",
+    "dev:web": "pnpm --filter ./apps/web run dev",
+    "dev:api": "pnpm --filter ./apps/api run start:dev",
+    "build": "pnpm -r run build",
+    "build:web": "pnpm --filter ./apps/web run build",
+    "build:api": "pnpm --filter ./apps/api run build",
+    "lint": "pnpm -r run lint",
+    "lint:web": "pnpm --filter ./apps/web run lint",
+    "lint:api": "pnpm --filter ./apps/api run lint",
+    "test:api": "pnpm --filter ./apps/api run test",
+    "test:api:e2e": "pnpm --filter ./apps/api run test:e2e",
+    "preview:web": "pnpm --filter ./apps/web run preview",
+    "start:api": "pnpm --filter ./apps/api run start:prod"
+  }
+}
