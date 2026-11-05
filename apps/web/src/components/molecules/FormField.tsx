@@ -10,17 +10,17 @@ type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
 export default function FormField({ id, label, error, children, ...props }: FormFieldProps) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="block text-lg leading-normal text-[#e1e1e1]" htmlFor={id}>
+      <label className="block text-lg leading-normal text-foreground" htmlFor={id}>
         {label}
       </label>
       <input
         id={id}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
-        className="w-full rounded bg-[#888] px-4 py-2 text-[15px] leading-normal text-[#171d1f] placeholder:text-[#171d1f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#81fe88]"
+        className="w-full rounded bg-muted px-4 py-2 text-base leading-normal text-surface placeholder:text-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         {...props}
       />
-      {error && <p id={`${id}-error`} className="text-sm text-[#ffb4ab]">{error}</p>}
+      {error && <p id={`${id}-error`} className="text-sm text-error">{error}</p>}
       {children}
     </div>
   )
