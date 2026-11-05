@@ -2,10 +2,22 @@
 @import '@fontsource/prompt/600.css';
 @import 'tailwindcss';
 
+@theme {
+  --color-background: #00090e;
+  --color-surface: #171d1f;
+  --color-foreground: #e1e1e1;
+  --color-muted: #888;
+  --color-on-muted: #171d1f;
+  --color-primary: #81fe88;
+  --color-primary-hover: #a3ffa8;
+  --color-on-primary: #132e35;
+  --color-error: #ffb4ab;
+}
+
 :root {
   font-family: 'Prompt', 'Segoe UI', Arial, sans-serif;
-  color: #e1e1e1;
-  background: #00090e;
+  color: var(--color-foreground);
+  background: var(--color-background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

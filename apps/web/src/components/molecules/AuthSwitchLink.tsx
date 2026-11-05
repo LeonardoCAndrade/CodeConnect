@@ -15,10 +15,10 @@ export default function AuthSwitchLink({ question, actionLabel, icon, to, layout
 
   return (
     <div className={stacked ? 'flex flex-col items-center gap-2 text-center' : 'flex flex-wrap items-center gap-2'}>
-      <p className={`leading-normal text-[#e1e1e1] ${stacked ? 'text-[15px]' : 'text-lg'}`}>{question}</p>
+      <p className={`leading-normal text-foreground ${stacked ? 'text-base' : 'text-lg'}`}>{question}</p>
       <Link
         to={to}
-        className="flex items-center gap-3 rounded text-lg leading-normal text-[#81fe88] hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#81fe88]"
+        className="flex items-center gap-3 rounded text-lg leading-normal text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
       >
         {actionLabel}
         <Icon name={icon} />

@@ -7,7 +7,7 @@ type AuthTemplateProps = {
 
 export function AuthTemplate({ bannerSrc, children }: AuthTemplateProps) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#00090e] px-4 py-8 text-[#e1e1e1] sm:px-8 lg:py-24">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-8 text-foreground sm:px-8 lg:py-24">
       <img
         src="/symbol.svg"
         alt=""
@@ -23,7 +23,7 @@ export function AuthTemplate({ bannerSrc, children }: AuthTemplateProps) {
         className="pointer-events-none absolute -right-24 bottom-0 w-[260px] opacity-30 select-none sm:right-[7.4%] sm:w-[407px]"
       />
 
-      <div className="relative grid w-full max-w-[996px] gap-8 rounded-[32px] border border-[#00090e] bg-[#171d1f] p-6 sm:p-10 lg:grid-cols-[407px_minmax(0,410px)] lg:justify-between lg:gap-0 lg:px-[78px] lg:py-[56px]">
+      <div className="relative grid w-full max-w-[996px] gap-8 rounded-[32px] border border-background bg-surface p-6 sm:p-10 lg:grid-cols-[407px_minmax(0,410px)] lg:justify-between lg:gap-0 lg:px-[78px] lg:py-[56px]">
         <div className="relative h-56 overflow-hidden sm:h-72 lg:h-auto lg:min-h-[628px]">
           <img src={bannerSrc} alt="Banner CodeConnect" className="absolute inset-0 h-full w-full object-cover" />
           <img src="/logo.svg" alt="CodeConnect" width={127.258} height={40} className="absolute bottom-8 left-1/2 -translate-x-1/2" />

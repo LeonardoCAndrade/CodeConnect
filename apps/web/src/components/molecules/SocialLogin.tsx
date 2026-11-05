@@ -12,10 +12,10 @@ const providers = [
 export default function SocialLogin({ onSelect }: SocialLoginProps) {
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-4 text-center text-[15px] leading-normal text-[#e1e1e1]">
-        <span className="h-px flex-1 bg-[#e1e1e1]" aria-hidden="true" />
+      <div className="flex items-center gap-4 text-center text-base leading-normal text-foreground">
+        <span className="h-px flex-1 bg-foreground" aria-hidden="true" />
         <span>ou entre com outras contas</span>
-        <span className="h-px flex-1 bg-[#e1e1e1]" aria-hidden="true" />
+        <span className="h-px flex-1 bg-foreground" aria-hidden="true" />
       </div>
       <div className="flex justify-center gap-6">
         {providers.map((provider) => (
@@ -23,7 +23,7 @@ export default function SocialLogin({ onSelect }: SocialLoginProps) {
             key={provider.name}
             type="button"
             onClick={() => onSelect(provider.name)}
-            className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded text-[12.5px] leading-normal text-[#e1e1e1] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#81fe88]"
+            className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded text-xs leading-normal text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
             aria-label={`Entrar com ${provider.name}`}
           >
             <span className="flex h-8 items-center">

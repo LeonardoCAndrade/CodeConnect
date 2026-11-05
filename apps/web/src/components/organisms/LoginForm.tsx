@@ -34,7 +34,7 @@ export default function LoginForm() {
               <FormField id="password" name="password" label="Senha" type="password" placeholder="******" autoComplete="current-password" required error={errors.password}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Checkbox name="remember" label="Lembrar-me" />
-                  <button type="button" onClick={() => setMessage('A recuperação de senha ainda não está disponível.')} className="cursor-pointer rounded text-[15px] leading-normal text-[#e1e1e1] underline underline-offset-2 hover:text-[#81fe88] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#81fe88]">
+                  <button type="button" onClick={() => setMessage('A recuperação de senha ainda não está disponível.')} className="cursor-pointer rounded text-base leading-normal text-foreground underline underline-offset-2 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                     Esqueci a senha
                   </button>
                 </div>
@@ -48,7 +48,7 @@ export default function LoginForm() {
         <SocialLogin onSelect={(provider) => setMessage(`O login com ${provider} ainda não está disponível.`)} />
       </div>
       <AuthSwitchLink question="Ainda não tem conta?" actionLabel="Crie seu cadastro!" icon="assignment" to="/cadastro" />
-      <p role="status" aria-live="polite" className="text-center text-sm text-[#e1e1e1] empty:-mt-6">{message}</p>
+      <p role="status" aria-live="polite" className="text-center text-sm text-foreground empty:-mt-6">{message}</p>
     </div>
   )
 }

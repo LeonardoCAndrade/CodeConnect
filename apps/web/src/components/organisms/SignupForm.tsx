@@ -48,7 +48,7 @@ export default function SignupForm() {
         <SocialLogin onSelect={(provider) => setMessage(`O cadastro com ${provider} ainda não está disponível.`)} />
       </div>
       <AuthSwitchLink question="Já tem conta?" actionLabel="Faça seu login!" icon="login" layout="inline" to="/login" />
-      <p role="status" aria-live="polite" className="text-center text-sm text-[#e1e1e1] empty:-mt-6">{message}</p>
+      <p role="status" aria-live="polite" className="text-center text-sm text-foreground empty:-mt-6">{message}</p>
     </div>
   )
 }
