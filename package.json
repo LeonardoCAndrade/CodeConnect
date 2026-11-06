@@ -16,10 +16,11 @@
     "test:web": "pnpm --filter ./apps/web run test",
     "test:api": "pnpm --filter ./apps/api run test",
     "test:api:e2e": "pnpm --filter ./apps/api run test:e2e",
-    "db:up": "docker compose up -d --wait",
+    "db:up": "docker compose up -d --build --wait",
     "db:down": "docker compose down",
     "db:migrate": "pnpm --filter ./apps/api run db:migrate",
     "db:deploy": "pnpm --filter ./apps/api run db:deploy",
+    "db:seed": "pnpm --filter ./apps/api run db:seed",
     "preview:web": "pnpm --filter ./apps/web run preview",
     "start:api": "pnpm --filter ./apps/api run start:prod"
   }
