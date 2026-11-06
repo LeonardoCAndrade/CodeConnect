@@ -10,23 +10,49 @@ import SocialLogin from '../molecules/SocialLogin'
 
 type SignupErrors = { name?: string; email?: string; password?: string }
 
+export type SignupValues = { name: string; email: string; password: string; remember: boolean }
+
+type SignupFormProps = {
+  /** Envia o cadastro. Resolve com a mensagem de sucesso ou rejeita com um erro cuja mensagem é exibida. */
+  onSubmit: (values: SignupValues) => Promise<string>
+}
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function SignupForm() {
+function validatePassword(password: string) {
+  if (!password) return 'Informe uma senha.'
+  if (password.length < 6 || password.length > 72) return 'A senha deve ter entre 6 e 72 caracteres.'
+  return undefined
+}
+
+export default function SignupForm({ onSubmit }: SignupFormProps) {
   const [errors, setErrors] = useState<SignupErrors>({})
   const [message, setMessage] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
+    const name = String(data.get('name') ?? '').trim()
     const email = String(data.get('email') ?? '').trim()
+    const password = String(data.get('password') ?? '')
     const nextErrors: SignupErrors = {
-      name: String(data.get('name') ?? '').trim() ? undefined : 'Informe seu nome.',
+      name: name ? undefined : 'Informe seu nome.',
       email: emailPattern.test(email) ? undefined : 'Informe um email válido.',
-      password: String(data.get('password') ?? '') ? undefined : 'Informe uma senha.',
+      password: validatePassword(password),
     }
     setErrors(nextErrors)
-    setMessage(Object.values(nextErrors).some(Boolean) ? '' : 'O cadastro ainda não está disponível.')
+    setMessage('')
+    if (Object.values(nextErrors).some(Boolean)) return
+
+    setSubmitting(true)
+    try {
+      setMessage(await onSubmit({ name, email, password, remember: data.get('remember') !== null }))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Erro inesperado. Tente novamente.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -41,8 +67,8 @@ export default function SignupForm() {
               <Checkbox name="remember" label="Lembrar-me" className="self-start" />
             </FormField>
           </div>
-          <PrimaryButton type="submit">
-            Cadastrar <Icon name="arrowForward" className="h-[18px] w-[18px]" />
+          <PrimaryButton type="submit" disabled={submitting} className="disabled:cursor-wait disabled:opacity-70">
+            {submitting ? 'Cadastrando…' : <>Cadastrar <Icon name="arrowForward" className="h-[18px] w-[18px]" /></>}
           </PrimaryButton>
         </form>
         <SocialLogin onSelect={(provider) => setMessage(`O cadastro com ${provider} ainda não está disponível.`)} />
