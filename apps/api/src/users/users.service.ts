@@ -12,6 +12,10 @@ import {
   UsersRepository,
 } from './users.repository.js';
 
+// Hash válido, mas que nunca confere: faz o login de email inexistente gastar o
+// mesmo tempo de scrypt e não revelar quais emails estão cadastrados.
+const DUMMY_PASSWORD_HASH = `${'00'.repeat(16)}:${'00'.repeat(64)}`;
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -55,6 +59,7 @@ export class UsersService {
   ): Promise<User | undefined> {
     const user = await this.usersRepository.findByEmail(normalizeEmail(email));
     if (!user) {
+      await this.passwordHasher.verify(password, DUMMY_PASSWORD_HASH);
       return undefined;
     }
     const valid = await this.passwordHasher.verify(password, user.passwordHash);

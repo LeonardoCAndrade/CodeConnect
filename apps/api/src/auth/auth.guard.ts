@@ -21,7 +21,9 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      request.user = await this.jwtService.verifyAsync<JwtPayload>(token);
+      request.user = await this.jwtService.verifyAsync<JwtPayload>(token, {
+        algorithms: ['HS256'],
+      });
     } catch {
       throw new UnauthorizedException();
     }
@@ -30,6 +32,7 @@ export class AuthGuard implements CanActivate {
 }
 
 function extractTokenFromHeader(request: Request): string | undefined {
-  const [type, token] = request.headers.authorization?.split(' ') ?? [];
-  return type === 'Bearer' ? token : undefined;
+  // O esquema de autenticação não diferencia maiúsculas (RFC 7235).
+  const [type, token] = request.headers.authorization?.split(/\s+/) ?? [];
+  return type?.toLowerCase() === 'bearer' ? token : undefined;
 }

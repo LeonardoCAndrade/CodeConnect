@@ -21,4 +21,14 @@ describe('PasswordHasher', () => {
   it('rejeita hash malformado', async () => {
     await expect(hasher.verify('senha123', 'invalido')).resolves.toBe(false);
   });
+
+  it('rejeita hash com chave não hexadecimal ou de tamanho errado', async () => {
+    await expect(hasher.verify('senha123', 'aabb:zz')).resolves.toBe(false);
+    await expect(hasher.verify('senha123', 'aabb:')).resolves.toBe(false);
+    const valid = await hasher.hash('senha123');
+    const [salt, key] = valid.split(':');
+    await expect(
+      hasher.verify('senha123', `${salt}:${key.slice(0, 32)}`),
+    ).resolves.toBe(false);
+  });
 });

@@ -33,6 +33,30 @@ describe('AuthGuard', () => {
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
+  it('aceita o esquema Bearer sem diferenciar maiúsculas', async () => {
+    const token = await jwtService.signAsync({ sub: '1', email: 'a@a.com' });
+
+    await expect(
+      guard.canActivate(
+        contextFor({ headers: { authorization: `bearer ${token}` } }),
+      ),
+    ).resolves.toBe(true);
+  });
+
+  it('rejeita token assinado com outro algoritmo', async () => {
+    const other = new JwtService({
+      secret: 'segredo-de-teste',
+      signOptions: { algorithm: 'HS512' },
+    });
+    const token = await other.signAsync({ sub: '1', email: 'a@a.com' });
+
+    await expect(
+      guard.canActivate(
+        contextFor({ headers: { authorization: `Bearer ${token}` } }),
+      ),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
   it('aceita token válido e anexa o payload à requisição', async () => {
     const token = await jwtService.signAsync({ sub: '1', email: 'a@a.com' });
     const request: Partial<AuthenticatedRequest> = {

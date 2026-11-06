@@ -73,6 +73,17 @@ describe('UsersService', () => {
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
+  it('verifica uma senha mesmo quando o email não existe', async () => {
+    const verify = vi.spyOn(PasswordHasher.prototype, 'verify');
+
+    await expect(
+      service.findByCredentials('naoexiste@example.com', 'senha123'),
+    ).resolves.toBeUndefined();
+    expect(verify).toHaveBeenCalledTimes(1);
+
+    verify.mockRestore();
+  });
+
   it('encontra o usuário apenas com credenciais válidas', async () => {
     await service.create({
       name: 'Ana',
