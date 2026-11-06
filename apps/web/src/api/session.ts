@@ -2,6 +2,25 @@ const SESSION_KEY = 'codeconnect.session'
 
 type StoredSession = { accessToken: string; expiresAt: number }
 
+const listeners = new Set<() => void>()
+
+/** Avisa quando a sessão muda (login, logout ou outra aba). Retorna a função de cancelamento. */
+export function subscribeSession(listener: () => void): () => void {
+  listeners.add(listener)
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === SESSION_KEY) listener()
+  }
+  window.addEventListener('storage', onStorage)
+  return () => {
+    listeners.delete(listener)
+    window.removeEventListener('storage', onStorage)
+  }
+}
+
+function notify() {
+  for (const listener of listeners) listener()
+}
+
 function storages(): Storage[] {
   const result: Storage[] = []
   try {
@@ -18,7 +37,7 @@ function storages(): Storage[] {
 }
 
 export function saveSession(accessToken: string, expiresIn: number, remember: boolean) {
-  clearSession()
+  removeStored()
   const session: StoredSession = { accessToken, expiresAt: Date.now() + expiresIn * 1000 }
   try {
     const storage = remember ? window.localStorage : window.sessionStorage
@@ -26,6 +45,7 @@ export function saveSession(accessToken: string, expiresIn: number, remember: bo
   } catch {
     // sem storage, a sessão não é persistida
   }
+  notify()
 }
 
 export function getAccessToken(): string | null {
@@ -46,6 +66,11 @@ export function getAccessToken(): string | null {
 }
 
 export function clearSession() {
+  removeStored()
+  notify()
+}
+
+function removeStored() {
   for (const storage of storages()) {
     try {
       storage.removeItem(SESSION_KEY)

@@ -10,3 +10,8 @@ it('renderiza e executa a ação principal', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'Continuar' }))
   expect(onClick).toHaveBeenCalledOnce()
 })
+
+it('oferece a variante com contorno, usada em ações secundárias', () => {
+  render(<PrimaryButton variant="outline">Descartar</PrimaryButton>)
+  expect(screen.getByRole('button', { name: 'Descartar' })).toHaveClass('border-primary')
+})

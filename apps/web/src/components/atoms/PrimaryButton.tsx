@@ -1,13 +1,14 @@
 import type { ButtonHTMLAttributes } from 'react'
+import { buttonClasses, type ButtonSize, type ButtonVariant } from './buttonStyles'
 
-type PrimaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement>
+type PrimaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: ButtonVariant
+  size?: ButtonSize
+}
 
-export default function PrimaryButton({ children, className = '', ...props }: PrimaryButtonProps) {
+export default function PrimaryButton({ children, className = '', variant = 'solid', size = 'md', ...props }: PrimaryButtonProps) {
   return (
-    <button
-      className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-lg leading-normal font-semibold text-on-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${className}`}
-      {...props}
-    >
+    <button className={buttonClasses(variant, size, className)} {...props}>
       {children}
     </button>
   )
