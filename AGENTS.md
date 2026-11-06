@@ -9,11 +9,14 @@ As regras dos agentes ficam somente nos arquivos `AGENTS.md`. Os arquivos `CLAUD
 CodeConnect é um monorepo pnpm com dois aplicativos TypeScript:
 
 - `apps/web`: React com Vite, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e Vitest. Entrada em `src/main.tsx`, componente raiz em `src/App.tsx`, estilos globais em `src/index.css`, componentes em `src/components/` e configuração dos testes em `src/test/setup.ts`.
+  - A comunicação com a API fica em `src/api/`: `client.ts` (cliente `openapi-fetch` que injeta o token Bearer), `auth.ts` (login e cadastro com erros traduzidos em `ApiError`) e `session.ts` (token no `localStorage` ou `sessionStorage`, conforme "Lembrar-me"). Componentes não chamam a API diretamente; as `pages` usam essas funções.
+  - `src/api/schema.d.ts` é gerado a partir do Swagger da API com `pnpm --filter web api:types` (com a API rodando) e fica versionado; nunca o edite à mão. O gerador roda via `pnpm dlx` porque `openapi-typescript` ainda não é compatível com o TypeScript 7 do frontend.
+  - Em desenvolvimento, o Vite encaminha `/api/*` para `http://localhost:3000` (proxy em `vite.config.ts`); em outros ambientes, defina `VITE_API_URL` (modelo em `apps/web/.env.example`). Nos testes, substitua o `fetch` com os helpers de `src/test/fetch.ts`.
 - `apps/api`: NestJS. A estrutura e as convenções estão em `apps/api/AGENTS.md`.
 - `pnpm-workspace.yaml` define os pacotes e os scripts de instalação permitidos (`allowBuilds`); `pnpm-lock.yaml` é o lockfile compartilhado.
 - `compose.yaml` sobe o SQL Server usado pela API, com os dados no volume `mssql-data`. A senha vem de `MSSQL_SA_PASSWORD` no `.env` da raiz (modelo em `.env.example`).
 
-O frontend já tem a tela de login (`LoginPage`) composta por componentes Atomic Design. A API tem cadastro de usuários e emissão de tokens JWT, com os usuários persistidos em SQL Server via Prisma. Parta do código existente em vez de recriá-lo.
+O frontend já tem as telas de login (`LoginPage`) e cadastro (`SignupPage`), compostas por componentes Atomic Design e integradas à API (o cadastro faz login automático em seguida). A API tem cadastro de usuários e emissão de tokens JWT, com os usuários persistidos em SQL Server via Prisma. Parta do código existente em vez de recriá-lo.
 
 ## Ambiente e comandos
 
