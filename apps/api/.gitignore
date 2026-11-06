@@ -21,3 +21,6 @@ logs/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Prisma Client gerado (pnpm db:generate)
+src/generated/

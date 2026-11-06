@@ -1,2 +1,11 @@
 packages:
   - 'apps/*'
+
+allowBuilds:
+  # swagger-ui-dist depende de @scarf/scarf, cujo script de instalação envia telemetria.
+  '@scarf/scarf': false
+  # Prisma: o preinstall valida a versão do Node e o postinstall baixa o schema engine usado pelas migrations.
+  'prisma': true
+  '@prisma/engines': true
+  # Dependência opcional do Vite; o binário da plataforma já vem por optionalDependencies.
+  'esbuild': false
