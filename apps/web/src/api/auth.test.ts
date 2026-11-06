@@ -40,6 +40,19 @@ it('cadastra com POST /users e em seguida faz login', async () => {
   expect(await createToken.json()).toEqual(credentials)
 })
 
+it('orienta a fazer login quando o cadastro funciona mas o login automático falha', async () => {
+  mockFetch(
+    jsonResponse(201, { id: '1', name: 'Ana', email: credentials.email, createdAt: '2026-11-05T12:00:00.000Z' }),
+    jsonResponse(500, { statusCode: 500, message: 'Internal server error' }),
+  )
+  await expect(signup({ name: 'Ana', ...credentials })).rejects.toThrow('Cadastro realizado, mas não foi possível entrar automaticamente. Faça seu login.')
+})
+
+it('não mascara erros que não são de rede', async () => {
+  mockFetch(new RangeError('inesperado'))
+  await expect(login(credentials)).rejects.toThrow('inesperado')
+})
+
 it('não faz login quando o email já está cadastrado', async () => {
   const fetchMock = mockFetch(jsonResponse(409, { statusCode: 409, message: 'Email já cadastrado' }))
   await expect(signup({ name: 'Ana', ...credentials })).rejects.toThrow('Este email já está cadastrado.')

@@ -38,8 +38,9 @@ async function request<T>(call: () => Promise<{ data?: T; error?: unknown; respo
   let result: Awaited<ReturnType<typeof call>>
   try {
     result = await call()
-  } catch {
-    throw new ApiError('Não foi possível conectar ao servidor.')
+  } catch (error) {
+    if (error instanceof TypeError) throw new ApiError('Não foi possível conectar ao servidor.')
+    throw error
   }
   if (!result.response.ok || result.data === undefined) throw toApiError(result.response, result.error)
   return result.data
@@ -51,5 +52,10 @@ export function login(input: LoginInput): Promise<TokenResponse> {
 
 export async function signup(input: SignupInput): Promise<TokenResponse> {
   await request(() => api.POST('/users', { body: input }))
-  return login({ email: input.email, password: input.password })
+  try {
+    return await login({ email: input.email, password: input.password })
+  } catch {
+    // A conta já existe: repetir o cadastro resultaria em 409, então orientamos a entrar.
+    throw new ApiError('Cadastro realizado, mas não foi possível entrar automaticamente. Faça seu login.')
+  }
 }

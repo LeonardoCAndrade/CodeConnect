@@ -14,6 +14,14 @@ it('envia o token Bearer quando há sessão', async () => {
   expect(request.headers.get('Authorization')).toBe('Bearer jwt-token')
 })
 
+it('não envia o token nas rotas públicas de login e cadastro', async () => {
+  saveSession('jwt-token', 3600, true)
+  const fetchMock = mockFetch(jsonResponse(201, {}), jsonResponse(201, {}))
+  await api.POST('/auth/tokens', { body: { email: 'ana@example.com', password: 'senha123' } })
+  await api.POST('/users', { body: { name: 'Ana', email: 'ana@example.com', password: 'senha123' } })
+  for (const [request] of fetchMock.mock.calls) expect(request.headers.has('Authorization')).toBe(false)
+})
+
 it('não envia Authorization sem sessão', async () => {
   const fetchMock = mockFetch(jsonResponse(401, { statusCode: 401, message: 'Unauthorized' }))
   await api.GET('/users/me')

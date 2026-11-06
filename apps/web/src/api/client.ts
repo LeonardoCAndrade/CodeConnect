@@ -10,8 +10,13 @@ export const api = createClient<paths>({
   fetch: (request) => globalThis.fetch(request),
 })
 
+// Rotas públicas não recebem o token, para que uma sessão antiga não interfira no login e no cadastro.
+const publicPaths = ['/auth/tokens', '/users']
+
 api.use({
   onRequest({ request }) {
+    const { pathname } = new URL(request.url)
+    if (request.method === 'POST' && publicPaths.some((path) => pathname.endsWith(path))) return request
     const token = getAccessToken()
     if (token) request.headers.set('Authorization', `Bearer ${token}`)
     return request
