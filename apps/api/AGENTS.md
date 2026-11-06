@@ -14,8 +14,11 @@ Regras específicas de `apps/api`. Elas complementam as regras gerais do monorep
 - A API usa SQL Server (via `compose.yaml` na raiz) com Prisma 7 e o driver adapter `@prisma/adapter-mssql`. A conexão vem de `DATABASE_URL` em `apps/api/.env` (modelo em `.env.example`).
 - O schema fica em `prisma/schema.prisma` e as migrations em `prisma/migrations/`. Altere o schema e gere a migration com `pnpm db:migrate`; nunca edite migrations já aplicadas.
 - O client é gerado em `src/generated/prisma` (ignorado pelo git e pelo lint) por `prisma generate`, que roda no `postinstall`, no `build`, no `dev` e no `test:e2e`.
-- O acesso ao banco fica atrás de repositórios: `UsersRepository` é uma classe abstrata usada como token de injeção, implementada por `PrismaUsersRepository`. Services não importam o Prisma. Traduza erros do Prisma (por exemplo, `P2002`) para erros de domínio no repositório.
-- Testes unitários usam implementações em memória (`src/users/testing/`). Os testes e2e usam o banco `codeconnect_test` (ou `DATABASE_URL_TEST`), aplicam as migrations no `globalSetup` e limpam as tabelas antes de cada teste.
+- O acesso ao banco fica atrás de repositórios: `UsersRepository` e `PostsRepository` são classes abstratas usadas como token de injeção, implementadas por `PrismaUsersRepository` e `PrismaPostsRepository`. Services não importam o Prisma. Traduza erros do Prisma (por exemplo, `P2002` e `P2003`) para erros de domínio no repositório. Colunas `uniqueidentifier` são validadas e normalizadas com `src/common/uuid.ts`.
+- Relações com `users` usam `onDelete: NoAction` para evitar múltiplos caminhos de cascata no SQL Server.
+- A busca do feed usa **Full-Text Search** do SQL Server (catálogo `codeconnect_ft`, índice em `posts(title, body)` com idioma 1046). O Prisma não modela índices full-text: a migration `add_posts_fulltext` foi escrita à mão e não pode ter `BEGIN TRAN`. A consulta fica em `PrismaPostsRepository.list` (`CONTAINSTABLE` com SQL parametrizado), e o texto digitado sempre passa por `toFullTextQuery`, que só deixa letras e números. O índice é populado de forma assíncrona: testes e2e de busca precisam repetir a consulta até o resultado aparecer.
+- `pnpm db:seed` (`prisma/seed.ts`, executado com `tsx`) recria 4 autores e 10 posts no banco de desenvolvimento; ele se recusa a rodar no banco de testes.
+- Testes unitários usam implementações em memória (`src/users/testing/` e `src/posts/testing/`). Os testes e2e usam o banco `codeconnect_test` (ou `DATABASE_URL_TEST`), aplicam as migrations no `globalSetup` e limpam as tabelas antes de cada teste com `test/reset-database.ts`.
 
 ## Princípios REST
 
