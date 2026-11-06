@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { isUuid, normalizeUuid } from '../common/uuid.js';
 import { Prisma, type User as UserRecord } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { User } from './user.entity.js';
@@ -9,8 +10,6 @@ import {
 } from './users.repository.js';
 
 const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 @Injectable()
 export class PrismaUsersRepository extends UsersRepository {
@@ -33,9 +32,7 @@ export class PrismaUsersRepository extends UsersRepository {
   }
 
   async findById(id: string): Promise<User | undefined> {
-    // A coluna é uniqueidentifier: um valor fora do formato faria o SQL Server
-    // falhar na conversão em vez de simplesmente não encontrar o registro.
-    if (!UUID_PATTERN.test(id)) {
+    if (!isUuid(id)) {
       return undefined;
     }
     const record = await this.prisma.user.findUnique({ where: { id } });
@@ -50,8 +47,7 @@ export class PrismaUsersRepository extends UsersRepository {
 
 function toUser(record: UserRecord): User {
   return {
-    // O SQL Server devolve uniqueidentifier em maiúsculas; a API expõe minúsculas.
-    id: record.id.toLowerCase(),
+    id: normalizeUuid(record.id),
     name: record.name,
     email: record.email,
     passwordHash: record.passwordHash,
