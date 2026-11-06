@@ -8,15 +8,17 @@ As regras dos agentes ficam somente nos arquivos `AGENTS.md`. Os arquivos `CLAUD
 
 CodeConnect é um monorepo pnpm com dois aplicativos TypeScript:
 
-- `apps/web`: React com Vite, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e Vitest. Entrada em `src/main.tsx`, componente raiz em `src/App.tsx`, estilos globais em `src/index.css`, componentes em `src/components/` e configuração dos testes em `src/test/setup.ts`.
-  - A comunicação com a API fica em `src/api/`: `client.ts` (cliente `openapi-fetch` que injeta o token Bearer), `auth.ts` (login e cadastro com erros traduzidos em `ApiError`) e `session.ts` (token no `localStorage` ou `sessionStorage`, conforme "Lembrar-me"). Componentes não chamam a API diretamente; as `pages` usam essas funções.
+- `apps/web`: React com Vite, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e Vitest. Entrada em `src/main.tsx`, rotas em `src/App.tsx`, estilos globais e tokens em `src/index.css`, componentes em `src/components/` e configuração dos testes em `src/test/setup.ts`.
+  - A comunicação com a API fica em `src/api/`: `client.ts` (cliente `openapi-fetch` que injeta o token Bearer), `auth.ts` (login e cadastro), `posts.ts` (feed, detalhe, publicação, curtidas, comentários e tags), `request.ts` (erros traduzidos em `ApiError`) e `session.ts` (token no `localStorage` ou `sessionStorage`, conforme "Lembrar-me"; um 401 da API encerra a sessão). Componentes não chamam a API diretamente: as `pages` usam essas funções, e ações comuns ao feed e ao detalhe ficam em `src/posts/usePostActions.ts`.
+  - O estado da sessão vem de `useAuth()` (`src/auth/`), que reage a login, logout e outras abas; `RequireAuth` protege rotas e o login volta para a página de origem (`state.from`).
+  - Feed, detalhe e publicação usam o layout `AppTemplate` (menu lateral `SideMenu`, cujo último item alterna entre Login e Sair) por meio de uma rota de layout em `App.tsx`. O `PostCard` é o mesmo no feed e no detalhe (`variant`), e o `Thumbnail` mostra um fallback quando a imagem falta ou não carrega.
   - `src/api/schema.d.ts` é gerado a partir do Swagger da API com `pnpm --filter web api:types` (com a API rodando) e fica versionado; nunca o edite à mão. O gerador roda via `pnpm dlx` porque `openapi-typescript` ainda não é compatível com o TypeScript 7 do frontend.
-  - Em desenvolvimento, o Vite encaminha `/api/*` para `http://localhost:3000` (proxy em `vite.config.ts`); em outros ambientes, defina `VITE_API_URL` (modelo em `apps/web/.env.example`). Nos testes, substitua o `fetch` com os helpers de `src/test/fetch.ts`.
+  - Em desenvolvimento, o Vite encaminha `/api/*` para `http://localhost:3000` (proxy em `vite.config.ts`); em outros ambientes, defina `VITE_API_URL` (modelo em `apps/web/.env.example`). Nos testes, substitua o `fetch` com os helpers de `src/test/fetch.ts` (`mockFetch` em ordem ou `routeFetch` por método e caminho) e use as fábricas de `src/test/posts.ts`.
 - `apps/api`: NestJS. A estrutura e as convenções estão em `apps/api/AGENTS.md`.
 - `pnpm-workspace.yaml` define os pacotes e os scripts de instalação permitidos (`allowBuilds`); `pnpm-lock.yaml` é o lockfile compartilhado.
-- `compose.yaml` sobe o SQL Server usado pela API, com os dados no volume `mssql-data`. A senha vem de `MSSQL_SA_PASSWORD` no `.env` da raiz (modelo em `.env.example`).
+- `compose.yaml` sobe o SQL Server usado pela API, com os dados no volume `mssql-data`. A imagem é construída a partir de `docker/mssql/Dockerfile`, que adiciona o Full-Text Search (ausente da imagem oficial) usado pela busca de posts. A senha vem de `MSSQL_SA_PASSWORD` no `.env` da raiz (modelo em `.env.example`).
 
-O frontend já tem as telas de login (`LoginPage`) e cadastro (`SignupPage`), compostas por componentes Atomic Design e integradas à API (o cadastro faz login automático em seguida). A API tem cadastro de usuários e emissão de tokens JWT, com os usuários persistidos em SQL Server via Prisma. Parta do código existente em vez de recriá-lo.
+O frontend tem as telas de login e cadastro, o feed de posts com busca e filtros, o detalhe do post com comentários e a publicação de posts, compostas por componentes Atomic Design e integradas à API. O feed e o detalhe são públicos; curtir, comentar e publicar exigem login. A API tem cadastro de usuários, emissão de tokens JWT e posts com tags, curtidas, comentários e busca full-text, persistidos em SQL Server via Prisma. Parta do código existente em vez de recriá-lo.
 
 ## Ambiente e comandos
 
@@ -34,9 +36,10 @@ Use Node.js 22.12 ou superior e a versão de pnpm definida em `package.json` (`p
 | `pnpm test:web` | Executar testes de componentes do frontend com Vitest |
 | `pnpm test:api` | Executar testes unitários da API com Vitest |
 | `pnpm test:api:e2e` | Executar testes de integração da API com Vitest e Supertest (requer o SQL Server do compose) |
-| `pnpm db:up` / `pnpm db:down` | Subir ou parar o SQL Server do `compose.yaml` |
+| `pnpm db:up` / `pnpm db:down` | Subir (construindo a imagem com Full-Text Search, se necessário) ou parar o SQL Server do `compose.yaml` |
 | `pnpm db:migrate` | Criar e aplicar uma migration a partir do schema Prisma (desenvolvimento) |
 | `pnpm db:deploy` | Aplicar as migrations pendentes |
+| `pnpm db:seed` | Popular o banco de desenvolvimento com autores e 10 posts de exemplo (senha `senha123`) |
 
 Esses scripts existem apenas no `package.json` da raiz. Dentro de `apps/web` ou `apps/api`, use os scripts do próprio pacote (`lint`, `build`, `test` e, na API, `test:e2e`). O frontend usa a porta 5173 por padrão; a API usa `PORT` ou 3000. Outros scripts podem ser executados com `pnpm --filter web <script>` ou `pnpm --filter api <script>`.
 

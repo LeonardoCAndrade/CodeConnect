@@ -1,5 +1,6 @@
 ﻿@import '@fontsource/prompt/400.css';
 @import '@fontsource/prompt/600.css';
+@import '@fontsource/roboto-mono/400.css';
 @import 'tailwindcss';
 
 @theme {
@@ -7,11 +8,15 @@
   --color-surface: #171d1f;
   --color-foreground: #e1e1e1;
   --color-muted: #888;
+  --color-subtle: #bcbcbc;
   --color-on-muted: #171d1f;
   --color-primary: #81fe88;
   --color-primary-hover: #a3ffa8;
   --color-on-primary: #132e35;
   --color-error: #ffb4ab;
+
+  --font-mono: 'Roboto Mono', ui-monospace, monospace;
+  --shadow-editor: 0 16px 24px 0 rgb(0 0 0 / 0.24);
 }
 
 :root {

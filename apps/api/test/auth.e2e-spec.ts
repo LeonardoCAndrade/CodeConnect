@@ -5,6 +5,7 @@ import { App } from 'supertest/types.js';
 import { AppModule } from './../src/app.module.js';
 import { configureApp } from './../src/configure-app.js';
 import { PrismaService } from './../src/prisma/prisma.service.js';
+import { resetDatabase } from './reset-database.js';
 
 const newUser = {
   name: 'Ana Souza',
@@ -29,7 +30,7 @@ describe('Users e Auth (e2e)', () => {
 
   beforeEach(async () => {
     app = await createApp();
-    await app.get(PrismaService).user.deleteMany();
+    await resetDatabase(app.get(PrismaService));
   });
 
   afterEach(async () => {

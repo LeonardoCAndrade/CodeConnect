@@ -88,6 +88,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lista o feed de posts
+         * @description Público. Com um token Bearer válido, likedByMe indica se o usuário curtiu.
+         */
+        get: operations["PostsController_list"];
+        put?: never;
+        /** Publica um post */
+        post: operations["PostsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/posts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retorna um post
+         * @description Público. Com um token Bearer válido, likedByMe indica se o usuário curtiu.
+         */
+        get: operations["PostsController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/posts/{id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Curte o post
+         * @description Idempotente: repetir mantém uma única curtida.
+         */
+        put: operations["PostsController_like"];
+        post?: never;
+        /**
+         * Remove a curtida do post
+         * @description Idempotente: remover uma curtida inexistente também retorna 204.
+         */
+        delete: operations["PostsController_unlike"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/posts/{id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lista os comentários do post, dos mais antigos aos mais novos */
+        get: operations["PostsController_listComments"];
+        put?: never;
+        /** Comenta no post */
+        post: operations["PostsController_createComment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lista as tags mais usadas nos posts */
+        get: operations["TagsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -144,6 +244,128 @@ export interface components {
              * @example 3600
              */
             expiresIn: number;
+        };
+        AuthorDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example Julio Lima */
+            name: string;
+            /**
+             * @description Identificador exibido (sem @), derivado do nome
+             * @example julio.lima
+             */
+            handle: string;
+        };
+        PostResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example Hooks personalizados no React */
+            title: string;
+            /** @example Como extrair lógica reutilizável de componentes. */
+            body: string;
+            /**
+             * Format: uri
+             * @description URL externa da imagem; null quando o post não tem imagem
+             */
+            imageUrl: string | null;
+            /**
+             * @example [
+             *       "React",
+             *       "Front-end"
+             *     ]
+             */
+            tags: string[];
+            author: components["schemas"]["AuthorDto"];
+            /** @example 12 */
+            likesCount: number;
+            /** @example 3 */
+            commentsCount: number;
+            /** @description Se o usuário autenticado curtiu o post (false para anônimos) */
+            likedByMe: boolean;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        PostPageResponseDto: {
+            items: components["schemas"]["PostResponseDto"][];
+            /** @example 1 */
+            page: number;
+            /** @example 6 */
+            pageSize: number;
+            /**
+             * @description Total de posts que atendem ao filtro
+             * @example 10
+             */
+            total: number;
+        };
+        PostDetailResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example Hooks personalizados no React */
+            title: string;
+            /** @example Como extrair lógica reutilizável de componentes. */
+            body: string;
+            /**
+             * Format: uri
+             * @description URL externa da imagem; null quando o post não tem imagem
+             */
+            imageUrl: string | null;
+            /**
+             * @example [
+             *       "React",
+             *       "Front-end"
+             *     ]
+             */
+            tags: string[];
+            author: components["schemas"]["AuthorDto"];
+            /** @example 12 */
+            likesCount: number;
+            /** @example 3 */
+            commentsCount: number;
+            /** @description Se o usuário autenticado curtiu o post (false para anônimos) */
+            likedByMe: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** @description Trecho de código do projeto */
+            code: string | null;
+        };
+        CreatePostDto: {
+            /** @example React zero to hero */
+            title: string;
+            /** @example Projeto para praticar hooks e componentes. */
+            body: string;
+            /** @example const soma = (a, b) => a + b */
+            code?: string;
+            /**
+             * Format: uri
+             * @example https://picsum.photos/seed/projeto/960/480
+             */
+            imageUrl?: string;
+            /**
+             * @example [
+             *       "React",
+             *       "Front-end"
+             *     ]
+             */
+            tags?: string[];
+        };
+        CommentResponseDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example Achei muito bom seu código, parabéns! */
+            body: string;
+            author: components["schemas"]["AuthorDto"];
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CreateCommentDto: {
+            /** @example Muito bom! */
+            body: string;
+        };
+        TagResponseDto: {
+            /** @example React */
+            name: string;
+            /** @example 4 */
+            postsCount: number;
         };
     };
     responses: never;
@@ -316,6 +538,279 @@ export interface operations {
             };
             /** @description Email ou senha inválidos */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_list: {
+        parameters: {
+            query?: {
+                /** @description Busca full-text no título e na descrição (por prefixo, todas as palavras) */
+                q?: string;
+                /** @description Filtra posts que tenham todas as tags informadas */
+                tags?: string[];
+                sort?: "recent" | "popular";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPageResponseDto"];
+                };
+            };
+            /** @description Parâmetros inválidos */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePostDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    /** @description URL do post criado */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetailResponseDto"];
+                };
+            };
+            /** @description Dados inválidos */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Token ausente ou inválido */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostDetailResponseDto"];
+                };
+            };
+            /** @description Post não encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_like: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Post curtido */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Token ausente ou inválido */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Post não encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_unlike: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Curtida removida */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Token ausente ou inválido */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Post não encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_listComments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentResponseDto"][];
+                };
+            };
+            /** @description Post não encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PostsController_createComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCommentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    /** @description URL da coleção de comentários do post */
+                    Location?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentResponseDto"];
+                };
+            };
+            /** @description Dados inválidos */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Token ausente ou inválido */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Post não encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    TagsController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponseDto"][];
+                };
+            };
+            /** @description Parâmetros inválidos */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };

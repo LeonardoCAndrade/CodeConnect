@@ -2,7 +2,9 @@ name: codeconnect
 
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    # Imagem oficial do SQL Server 2022 com o Full-Text Search instalado (docker/mssql/Dockerfile).
+    build: docker/mssql
+    image: codeconnect-mssql-fts
     container_name: codeconnect-sqlserver
     environment:
       ACCEPT_EULA: 'Y'

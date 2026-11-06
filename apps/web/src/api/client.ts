@@ -1,6 +1,6 @@
 import createClient from 'openapi-fetch'
 import type { paths } from './schema'
-import { getAccessToken } from './session'
+import { clearSession, getAccessToken } from './session'
 
 const baseUrl = new URL(import.meta.env.VITE_API_URL ?? '/api', window.location.origin).href.replace(/\/$/, '')
 
@@ -20,5 +20,10 @@ api.use({
     const token = getAccessToken()
     if (token) request.headers.set('Authorization', `Bearer ${token}`)
     return request
+  },
+  onResponse({ request, response }) {
+    // Token recusado pela API (expirado ou revogado): encerra a sessão local.
+    if (response.status === 401 && request.headers.has('Authorization')) clearSession()
+    return response
   },
 })

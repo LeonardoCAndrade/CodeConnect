@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, Route, Routes } from 'react-router'
 import { expect, test } from 'vitest'
 import { getAccessToken } from '../../api/session'
 import { jsonResponse, mockFetch, tokenResponse } from '../../test/fetch'
@@ -24,15 +24,22 @@ async function fillAndSubmit() {
   await user.click(screen.getByRole('button', { name: 'Cadastrar' }))
 }
 
-test('cadastra na API, faz login automático e guarda a sessão', async () => {
+test('cadastra na API, faz login automático, guarda a sessão e vai para o feed', async () => {
   const fetchMock = mockFetch(
     jsonResponse(201, { id: '1', name: 'Ana Souza', email: 'ana@example.com', createdAt: '2026-11-05T12:00:00.000Z' }),
     jsonResponse(201, tokenResponse),
   )
-  render(<MemoryRouter><SignupPage /></MemoryRouter>)
+  render(
+    <MemoryRouter initialEntries={['/cadastro']}>
+      <Routes>
+        <Route path="/cadastro" element={<SignupPage />} />
+        <Route path="/" element={<h1>Feed</h1>} />
+      </Routes>
+    </MemoryRouter>,
+  )
   await fillAndSubmit()
 
-  expect(await screen.findByText('Cadastro realizado! Você já está conectado.')).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Feed' })).toBeInTheDocument()
   expect(fetchMock.mock.calls.map(([request]) => new URL(request.url).pathname)).toEqual(['/api/users', '/api/auth/tokens'])
   expect(getAccessToken()).toBe('jwt-token')
   expect(sessionStorage.length).toBe(1)

@@ -9,11 +9,79 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid()) @db.UniqueIdentifier
-  name         String   @db.NVarChar(100)
-  email        String   @unique @db.NVarChar(254)
-  passwordHash String   @map("password_hash") @db.NVarChar(255)
-  createdAt    DateTime @default(now()) @map("created_at") @db.DateTime2
+  id           String    @id @default(uuid()) @db.UniqueIdentifier
+  name         String    @db.NVarChar(100)
+  email        String    @unique @db.NVarChar(254)
+  passwordHash String    @map("password_hash") @db.NVarChar(255)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.DateTime2
+  posts        Post[]
+  likes        Like[]
+  comments     Comment[]
 
   @@map("users")
+}
+
+// title e body têm índice full-text (migration add_posts_fulltext), usado pela busca do feed.
+model Post {
+  id        String    @id @default(uuid()) @db.UniqueIdentifier
+  title     String    @db.NVarChar(120)
+  body      String    @db.NVarChar(2000)
+  code      String?   @db.NVarChar(Max)
+  imageUrl  String?   @map("image_url") @db.NVarChar(2048)
+  authorId  String    @map("author_id") @db.UniqueIdentifier
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime2
+  // NoAction nas relações com users evita múltiplos caminhos de cascata no SQL Server.
+  author    User      @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tags      PostTag[]
+  likes     Like[]
+  comments  Comment[]
+
+  @@index([createdAt])
+  @@index([authorId])
+  @@map("posts")
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  // A collation padrão não diferencia maiúsculas, então "React" e "react" são a mesma tag.
+  name  String    @unique @db.NVarChar(30)
+  posts PostTag[]
+
+  @@map("tags")
+}
+
+model PostTag {
+  postId String @map("post_id") @db.UniqueIdentifier
+  tagId  Int    @map("tag_id")
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+  @@map("post_tags")
+}
+
+model Like {
+  userId    String   @map("user_id") @db.UniqueIdentifier
+  postId    String   @map("post_id") @db.UniqueIdentifier
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime2
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("likes")
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.UniqueIdentifier
+  body      String   @db.NVarChar(1000)
+  postId    String   @map("post_id") @db.UniqueIdentifier
+  authorId  String   @map("author_id") @db.UniqueIdentifier
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime2
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([postId, createdAt])
+  @@map("comments")
 }
