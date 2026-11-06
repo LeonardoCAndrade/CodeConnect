@@ -8,19 +8,41 @@ import AuthSwitchLink from '../molecules/AuthSwitchLink'
 import FormField from '../molecules/FormField'
 import SocialLogin from '../molecules/SocialLogin'
 
-export default function LoginForm() {
-  const [errors, setErrors] = useState<{ username?: string; password?: string }>({})
-  const [message, setMessage] = useState('')
+export type LoginValues = { email: string; password: string; remember: boolean }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+type LoginFormProps = {
+  /** Envia as credenciais. Resolve com a mensagem de sucesso ou rejeita com um erro cuja mensagem é exibida. */
+  onSubmit: (values: LoginValues) => Promise<string>
+}
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export default function LoginForm({ onSubmit }: LoginFormProps) {
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
+  const [message, setMessage] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
+    const email = String(data.get('email') ?? '').trim()
+    const password = String(data.get('password') ?? '')
     const nextErrors = {
-      username: String(data.get('username') ?? '').trim() ? undefined : 'Informe seu email ou usuário.',
-      password: String(data.get('password') ?? '') ? undefined : 'Informe sua senha.',
+      email: emailPattern.test(email) ? undefined : 'Informe um email válido.',
+      password: password ? undefined : 'Informe sua senha.',
     }
     setErrors(nextErrors)
-    setMessage(nextErrors.username || nextErrors.password ? '' : 'O login ainda não está disponível.')
+    setMessage('')
+    if (nextErrors.email || nextErrors.password) return
+
+    setSubmitting(true)
+    try {
+      setMessage(await onSubmit({ email, password, remember: data.get('remember') !== null }))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Erro inesperado. Tente novamente.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -30,7 +52,7 @@ export default function LoginForm() {
           <div className="flex flex-col gap-10">
             <AuthHeader title="Login" subtitle="Boas-vindas! Faça seu login." />
             <div className="flex flex-col gap-4">
-              <FormField id="username" name="username" label="Email ou usuário" placeholder="usuario123" autoComplete="username" required error={errors.username} />
+              <FormField id="email" name="email" label="Email" type="email" placeholder="Digite seu email" autoComplete="email" required error={errors.email} />
               <FormField id="password" name="password" label="Senha" type="password" placeholder="******" autoComplete="current-password" required error={errors.password}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Checkbox name="remember" label="Lembrar-me" />
@@ -41,8 +63,8 @@ export default function LoginForm() {
               </FormField>
             </div>
           </div>
-          <PrimaryButton type="submit">
-            Login <Icon name="arrowForward" className="h-[18px] w-[18px]" />
+          <PrimaryButton type="submit" disabled={submitting} className="disabled:cursor-wait disabled:opacity-70">
+            {submitting ? 'Entrando…' : <>Login <Icon name="arrowForward" className="h-[18px] w-[18px]" /></>}
           </PrimaryButton>
         </form>
         <SocialLogin onSelect={(provider) => setMessage(`O login com ${provider} ainda não está disponível.`)} />
