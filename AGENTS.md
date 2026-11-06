@@ -10,9 +10,10 @@ CodeConnect é um monorepo pnpm com dois aplicativos TypeScript:
 
 - `apps/web`: React com Vite, Tailwind CSS 4 (plugin `@tailwindcss/vite`) e Vitest. Entrada em `src/main.tsx`, componente raiz em `src/App.tsx`, estilos globais em `src/index.css`, componentes em `src/components/` e configuração dos testes em `src/test/setup.ts`.
 - `apps/api`: NestJS. A estrutura e as convenções estão em `apps/api/AGENTS.md`.
-- `pnpm-workspace.yaml` define os pacotes; `pnpm-lock.yaml` é o lockfile compartilhado.
+- `pnpm-workspace.yaml` define os pacotes e os scripts de instalação permitidos (`allowBuilds`); `pnpm-lock.yaml` é o lockfile compartilhado.
+- `compose.yaml` sobe o SQL Server usado pela API, com os dados no volume `mssql-data`. A senha vem de `MSSQL_SA_PASSWORD` no `.env` da raiz (modelo em `.env.example`).
 
-O frontend já tem a tela de login (`LoginPage`) composta por componentes Atomic Design. A API ainda contém o endpoint inicial do template. Não presuma integrações, banco de dados ou autenticação no backend já implementados; parta do código existente em vez de recriá-lo.
+O frontend já tem a tela de login (`LoginPage`) composta por componentes Atomic Design. A API tem cadastro de usuários e emissão de tokens JWT, com os usuários persistidos em SQL Server via Prisma. Parta do código existente em vez de recriá-lo.
 
 ## Ambiente e comandos
 
@@ -29,7 +30,10 @@ Use Node.js 22.12 ou superior e a versão de pnpm definida em `package.json` (`p
 | `pnpm lint:web` / `pnpm lint:api` | Verificar um aplicativo |
 | `pnpm test:web` | Executar testes de componentes do frontend com Vitest |
 | `pnpm test:api` | Executar testes unitários da API com Vitest |
-| `pnpm test:api:e2e` | Executar testes de integração da API com Vitest e Supertest |
+| `pnpm test:api:e2e` | Executar testes de integração da API com Vitest e Supertest (requer o SQL Server do compose) |
+| `pnpm db:up` / `pnpm db:down` | Subir ou parar o SQL Server do `compose.yaml` |
+| `pnpm db:migrate` | Criar e aplicar uma migration a partir do schema Prisma (desenvolvimento) |
+| `pnpm db:deploy` | Aplicar as migrations pendentes |
 
 Esses scripts existem apenas no `package.json` da raiz. Dentro de `apps/web` ou `apps/api`, use os scripts do próprio pacote (`lint`, `build`, `test` e, na API, `test:e2e`). O frontend usa a porta 5173 por padrão; a API usa `PORT` ou 3000. Outros scripts podem ser executados com `pnpm --filter web <script>` ou `pnpm --filter api <script>`.
 
